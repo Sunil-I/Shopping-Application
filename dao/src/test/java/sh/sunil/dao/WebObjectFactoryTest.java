@@ -10,7 +10,7 @@ import org.junit.Test;
  * @author Sunil Islam
  */
 public class WebObjectFactoryTest {
-    final Logger log = LogManager.getLogger(PropertiesDaoTest.class);
+    final Logger log = LogManager.getLogger(WebObjectFactoryTest.class);
 
     @Test
     public void testGetPropertiesDao() {
