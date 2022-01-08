@@ -106,6 +106,39 @@ public class MVCController {
         return "home";
     }
 
+    @RequestMapping(value = "/cart", method = {RequestMethod.GET, RequestMethod.POST})
+    public String Cart(Model model, HttpSession session) {
+
+        // get sessionUser from session
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "cart");
+        return "cart";
+    }
+
+    @RequestMapping(value = "/catalog", method = {RequestMethod.GET, RequestMethod.POST})
+    public String catalogList(Model model, HttpSession session) {
+
+        // get sessionUser from session
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+
+//        List<ShoppingItem> availableItems  = new ArrayList();
+//        ShoppingItem item = new ShoppingItem();
+//        item.setName("apple");
+//        availableItems.add(item);
+
+        List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
+
+        model.addAttribute("availableItems", availableItems);
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "admin");
+        return "catalog";
+    }
+
     @RequestMapping(value = "/about", method = {RequestMethod.GET, RequestMethod.POST})
     public String aboutCart(Model model, HttpSession session) {
 
@@ -130,7 +163,7 @@ public class MVCController {
         String errorMessage = "";
         if (action == null) {
         } else if ("email".equals(action)) {
-            message = String.format("Email from %s %s with the subject of <b> %s </b> and contents of %s was sent!", firstName, lastName, subject, contents );
+            message = String.format("Email from %s %s with the subject of <b> %s </b> and contents of %s was sent!", firstName, lastName, subject, contents);
         } else {
             errorMessage = "Unable to send email!";
         }
