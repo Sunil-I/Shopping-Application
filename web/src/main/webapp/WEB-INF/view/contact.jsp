@@ -3,11 +3,28 @@
 // request set in controller
    request.setAttribute("selectedPage","contact");
 %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="header.jsp" />
 <!-- Begin page content -->
 
 <main class="container">
    <H1>Contact Form</H1>
+   <%-- handle error message --%>
+   <c:if test="${not empty errorMessage}">
+      <div class="alert alert-danger alert-dismissible" role="alert">
+         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            ${errorMessage}
+      </div>
+   </c:if>
+   <%-- handle message --%>
+
+   <c:if test="${not empty message}">
+      <div class="alert alert-success alert-dismissible" role="alert">
+         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            ${message}
+      </div>
+   </c:if>
+
    <form class="form-card" method="POST" id="card-form">
       <div class="form-group">
          <table class="table">
@@ -18,7 +35,7 @@
                </tr>
                <tr>
                   <td>Last Name</td>
-                  <td><input type="text" size="16" name="last name" value="" required></td>
+                  <td><input type="text" size="16" name="lastname" value="" required></td>
                </tr>
                <tr>
                   <td>Reason for contact</td>

@@ -66,7 +66,7 @@ public class UserAndLoginController {
             errorMessage = "user " + sessionUser.getUsername() + " already logged in";
             LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
-            return "/";
+            return "redirect:/";
         }
 
         model.addAttribute("message", message);
@@ -99,7 +99,7 @@ public class UserAndLoginController {
             errorMessage = "user " + sessionUser.getUsername() + " already logged in";
             LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
-            return "home";
+            return "redirect:/";
         };
 
         if (username == null || username.trim().isEmpty()) {
@@ -147,14 +147,14 @@ public class UserAndLoginController {
             model.addAttribute("errorMessage", errorMessage);
             // used to set tab selected
             model.addAttribute("selectedPage", "home");
-            return "home";
+            return "redirect:/";
         } else {
             model.addAttribute("errorMessage", "unknown action requested:" + action);
             LOG.error("login page unknown action requested:" + action);
             model.addAttribute("errorMessage", errorMessage);
             // used to set tab selected
             model.addAttribute("selectedPage", "home");
-            return "home";
+            return "redirect:/";
         }
     }
 
@@ -241,7 +241,7 @@ public class UserAndLoginController {
         } else {
             LOG.debug("unknown action " + action);
             model.addAttribute("errorMessage", "unknown action " + action);
-            return "home";
+            return "redirect:/";
         }
     }
 
@@ -257,7 +257,7 @@ public class UserAndLoginController {
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be an administrator to access users information";
-            return "home";
+            return "redirect:/";
         }
 
         List<User> userList = userRepository.findAll();
@@ -287,7 +287,7 @@ public class UserAndLoginController {
         if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be logged in to access user information";
             model.addAttribute("errorMessage", errorMessage);
-            return "home";
+            return "redirect:/";
         }
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
@@ -297,14 +297,14 @@ public class UserAndLoginController {
                         + "which is not the logged in user " + sessionUser.getUsername();
                 LOG.warn(errorMessage);
                 model.addAttribute("errorMessage", errorMessage);
-                return ("home");
+                return ("/");
             }
         }
 
         List<User> userList = userRepository.findByUsername(username);
         if (userList.isEmpty()) {
             LOG.error("viewModifyUser called for unknown username " + username);
-            return ("home");
+            return ("/");
         }
 
         User modifyUser = userList.get(0);
@@ -350,7 +350,7 @@ public class UserAndLoginController {
         if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be logged in to access users information";
             model.addAttribute("errorMessage", errorMessage);
-            return "home";
+            return "redirect:/";
         }
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
@@ -359,7 +359,7 @@ public class UserAndLoginController {
                         + "which is not the logged in user " + sessionUser.getUsername();
                 model.addAttribute("errorMessage", errorMessage);
                 LOG.warn(errorMessage);
-                return ("home");
+                return ("/");
             }
         }
 
@@ -368,7 +368,7 @@ public class UserAndLoginController {
             errorMessage = "update user called for unknown username: " + username;
             LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
-            return ("home");
+            return ("/");
         }
 
         User modifyUser = userList.get(0);
@@ -405,7 +405,7 @@ public class UserAndLoginController {
                 errorMessage = "cannot parse userRole" + userRole;
                 LOG.warn(errorMessage);
                 model.addAttribute("errorMessage", errorMessage);
-                return ("home");
+                return ("/");
             }
         }
 
