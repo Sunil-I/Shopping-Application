@@ -13,7 +13,6 @@ import sh.sunil.cart.model.dto.User;
 import sh.sunil.cart.model.dto.UserRole;
 import sh.sunil.cart.model.service.ShoppingCart;
 import sh.sunil.cart.model.service.ShoppingService;
-import sh.sunil.cart.web.WebObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

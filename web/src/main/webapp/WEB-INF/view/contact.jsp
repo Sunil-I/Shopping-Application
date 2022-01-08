@@ -1,8 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%
-// request set in controller
-   request.setAttribute("selectedPage","contact");
-%>
+<%request.setAttribute("selectedPage","contact");%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <jsp:include page="header.jsp" />
 <!-- Begin page content -->

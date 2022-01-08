@@ -1,17 +1,7 @@
 package sh.sunil.cart.spring.web;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.sunil.cart.dao.impl.UserRepository;
-import sh.sunil.cart.model.dto.Address;
-import sh.sunil.cart.model.dto.User;
-import sh.sunil.cart.model.dto.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,12 +9,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import sh.sunil.cart.dao.impl.UserRepository;
+import sh.sunil.cart.model.dto.Address;
+import sh.sunil.cart.model.dto.User;
+import sh.sunil.cart.model.dto.UserRole;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
 
 @Controller
 @RequestMapping("/")
 public class UserAndLoginController {
 
-    final static Logger LOG = LogManager.getLogger(UserAndLoginController.class);
+    final static Logger log = LogManager.getLogger(UserAndLoginController.class);
 
     @Autowired
     UserRepository userRepository;
@@ -42,10 +43,9 @@ public class UserAndLoginController {
 
     @RequestMapping(value = "/logout", method = {RequestMethod.GET, RequestMethod.POST})
     public String logout(Model model,
-            HttpSession session) {
+                         HttpSession session) {
         String message = "you have been successfully logged out";
         String errorMessage = "";
-        // logout of session and clear
         session.invalidate();
 
         return "redirect:/";
@@ -56,22 +56,12 @@ public class UserAndLoginController {
     public String login(
             Model model,
             HttpSession session) {
-        String message = "log into site using username";
-        String errorMessage = "";
-
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
 
         if (!UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
-            errorMessage = "user " + sessionUser.getUsername() + " already logged in";
-            LOG.warn(errorMessage);
-            model.addAttribute("errorMessage", errorMessage);
             return "redirect:/";
         }
-
-        model.addAttribute("message", message);
-        model.addAttribute("errorMessage", errorMessage);
-        // used to set tab selected
         model.addAttribute("selectedPage", "home");
 
         return "login";
@@ -81,26 +71,23 @@ public class UserAndLoginController {
     @RequestMapping(value = "/login", method = {RequestMethod.POST})
     @Transactional
     public String login(@RequestParam(value = "action", required = false) String action,
-            @RequestParam(value = "username", required = false) String username,
-            @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "password2", required = false) String password2,
-            Model model,
-            HttpSession session) {
+                        @RequestParam(value = "username", required = false) String username,
+                        @RequestParam(value = "password", required = false) String password,
+                        Model model,
+                        HttpSession session) {
         String message = "";
         String errorMessage = "";
 
-        LOG.debug("login for username " + username);
+        log.info(String.format("Payload(action=%s, username=%s, password=%s", action, username, password));
 
-        // get current session modifyUser 
+        // get current session modifyUser
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
 
         if (!UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
-            errorMessage = "user " + sessionUser.getUsername() + " already logged in";
-            LOG.warn(errorMessage);
-            model.addAttribute("errorMessage", errorMessage);
             return "redirect:/";
-        };
+        }
+        ;
 
         if (username == null || username.trim().isEmpty()) {
             errorMessage = "you must enter a username";
@@ -111,69 +98,50 @@ public class UserAndLoginController {
         List<User> userList = userRepository.findByUsername(username);
 
         if ("login".equals(action)) {
-            //todo find and add modifyUser and test password
-            LOG.debug("logging in user username=" + username);
             if (userList.isEmpty()) {
-                errorMessage = "cannot find user for username :" + username;
-                LOG.warn(errorMessage);
+                errorMessage = "The username entered does not exist.";
                 model.addAttribute("errorMessage", errorMessage);
                 return "login";
             }
             if (password == null) {
                 errorMessage = "you must enter a password";
-                LOG.warn(errorMessage);
                 model.addAttribute("errorMessage", errorMessage);
                 return "login";
             }
 
             User loginUser = userList.get(0);
+            System.out.println(loginUser);
             if (!loginUser.isValidPassword(password)) {
-                model.addAttribute("errorMessage", "invalid username or password");
+                model.addAttribute("errorMessage", "The password entered is incorrect.");
                 return "login";
             }
 
             if (!loginUser.getEnabled()) {
-                model.addAttribute("errorMessage", "user account "+username
-                        + " is disabled in this system");
+                model.addAttribute("errorMessage", "This user is disabled.");
                 return "login";
             }
 
-            message = "successfully logged in user:" + username;
             session.setAttribute("sessionUser", loginUser);
-
             model.addAttribute("sessionUser", loginUser);
-
-            model.addAttribute("message", message);
-            model.addAttribute("errorMessage", errorMessage);
-            // used to set tab selected
             model.addAttribute("selectedPage", "home");
             return "redirect:/";
         } else {
-            model.addAttribute("errorMessage", "unknown action requested:" + action);
-            LOG.error("login page unknown action requested:" + action);
+            model.addAttribute("errorMessage", "unknown action requested: " + action);
             model.addAttribute("errorMessage", errorMessage);
             // used to set tab selected
-            model.addAttribute("selectedPage", "home");
-            return "redirect:/";
+            model.addAttribute("selectedPage", "login");
+            return "login";
         }
     }
 
     @RequestMapping(value = "/register", method = {RequestMethod.GET})
     @Transactional
-    public String registerGET(@RequestParam(value = "action", required = false) String action,
-            @RequestParam(value = "username", required = false) String username,
-            @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "password2", required = false) String password2,
+    public String registerGET(
             Model model,
             HttpSession session) {
-        String message = "register new user";
-        String errorMessage = "";
 
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
-        model.addAttribute("message", message);
-        model.addAttribute("errorMessage", errorMessage);
-        // used to set tab selected
         model.addAttribute("selectedPage", "home");
 
         return "register";
@@ -182,15 +150,15 @@ public class UserAndLoginController {
     @RequestMapping(value = "/register", method = {RequestMethod.POST})
     @Transactional
     public String register(@RequestParam(value = "action", required = false) String action,
-            @RequestParam(value = "username", required = false) String username,
-            @RequestParam(value = "password", required = false) String password,
-            @RequestParam(value = "password2", required = false) String password2,
-            Model model,
-            HttpSession session) {
+                           @RequestParam(value = "username", required = false) String username,
+                           @RequestParam(value = "password", required = false) String password,
+                           @RequestParam(value = "password2", required = false) String password2,
+                           Model model,
+                           HttpSession session) {
         String message = "";
         String errorMessage = "";
 
-        LOG.debug("register new username=" + username);
+        log.info(String.format("Payload(action=%s, username=%s, password=%s, password2=%s", action, username, password, password2));
 
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
@@ -205,14 +173,12 @@ public class UserAndLoginController {
 
         if ("createNewAccount".equals(action)) {
             if (!userList.isEmpty()) {
-                errorMessage = "trying to create user with username which already exists: " + username;
-                LOG.warn(errorMessage);
+                errorMessage = "This username is already taken!";
                 model.addAttribute("errorMessage", errorMessage);
                 return "register";
             }
             if (password == null || !password.equals(password2) || password.length() < 8) {
-                errorMessage = "you must enter two identical passwords with atleast 8 characters";
-                LOG.warn(errorMessage);
+                errorMessage = "The two passwords do not match or are less then 8 characters.";
                 model.addAttribute("errorMessage", errorMessage);
                 return "register";
             }
@@ -229,26 +195,23 @@ public class UserAndLoginController {
             if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
                 session.setAttribute("sessionUser", modifyUser);
                 model.addAttribute("sessionUser", modifyUser);
-                LOG.debug("log in newly created user=" + modifyUser);
             }
 
-            LOG.debug("createNewAccount created new user user=" + modifyUser);
-            message = "enter user details";
+            message = "";
             model.addAttribute("modifyUser", modifyUser);
             model.addAttribute("message", message);
             model.addAttribute("errorMessage", errorMessage);
             return "viewModifyUser";
         } else {
-            LOG.debug("unknown action " + action);
             model.addAttribute("errorMessage", "unknown action " + action);
-            return "redirect:/";
+            return "register";
         }
     }
 
     @RequestMapping(value = {"/users"}, method = RequestMethod.GET)
     @Transactional
     public String users(Model model,
-            HttpSession session) {
+                        HttpSession session) {
         String message = "";
         String errorMessage = "";
 
@@ -257,7 +220,7 @@ public class UserAndLoginController {
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be an administrator to access users information";
-            return "redirect:/";
+            return "users";
         }
 
         List<User> userList = userRepository.findAll();
@@ -270,15 +233,15 @@ public class UserAndLoginController {
 
     @RequestMapping(value = {"/viewModifyUser"}, method = RequestMethod.GET)
     public String modifyuser(
-            @RequestParam(value = "username", required = true) String username,
+            @RequestParam(value = "username", required = false) String username,
             Model model,
             HttpSession session) {
+        if (username == null || username.trim().isEmpty()) {
+            model.addAttribute("errorMessage", "No username given");
+            return "viewModifyUser";
+        }
         String message = "";
         String errorMessage = "";
-
-        model.addAttribute("selectedPage", "home");
-
-        LOG.debug("get viewModifyUser called for username=" + username);
 
         // check secure access to modifyUser profile
         User sessionUser = getSessionUser(session);
@@ -287,24 +250,22 @@ public class UserAndLoginController {
         if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be logged in to access user information";
             model.addAttribute("errorMessage", errorMessage);
-            return "redirect:/";
+            return "viewModifyUser";
         }
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
             // if not an administrator you can only access your own account info
             if (!sessionUser.getUsername().equals(username)) {
-                errorMessage = "security non admin viewModifyUser called for username " + username
-                        + "which is not the logged in user " + sessionUser.getUsername();
-                LOG.warn(errorMessage);
+                errorMessage = "You must either be the user or an admin to update the details of this user.";
                 model.addAttribute("errorMessage", errorMessage);
-                return ("/");
+                return "viewModifyUser";
             }
         }
 
         List<User> userList = userRepository.findByUsername(username);
         if (userList.isEmpty()) {
-            LOG.error("viewModifyUser called for unknown username " + username);
-            return ("/");
+            model.addAttribute("errorMessage", "User does not exist!");
+            return "viewModifyUser";
         }
 
         User modifyUser = userList.get(0);
@@ -341,8 +302,6 @@ public class UserAndLoginController {
         String message = "";
         String errorMessage = "";
 
-        LOG.debug("post updateUser called for username=" + username);
-
         // security check if party is allowed to access or modify this party
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
@@ -350,7 +309,7 @@ public class UserAndLoginController {
         if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be logged in to access users information";
             model.addAttribute("errorMessage", errorMessage);
-            return "redirect:/";
+            return "viewModifyUser";
         }
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
@@ -358,7 +317,6 @@ public class UserAndLoginController {
                 errorMessage = "security viewModifyUser called for non admin username " + username
                         + "which is not the logged in user " + sessionUser.getUsername();
                 model.addAttribute("errorMessage", errorMessage);
-                LOG.warn(errorMessage);
                 return ("/");
             }
         }
@@ -366,9 +324,8 @@ public class UserAndLoginController {
         List<User> userList = userRepository.findByUsername(username);
         if (userList.isEmpty()) {
             errorMessage = "update user called for unknown username: " + username;
-            LOG.warn(errorMessage);
             model.addAttribute("errorMessage", errorMessage);
-            return ("/");
+            return "viewModifyUser";
         }
 
         User modifyUser = userList.get(0);
@@ -376,8 +333,7 @@ public class UserAndLoginController {
         // update password if requested
         if ("updatePassword".equals(action)) {
             if (password == null || !password.equals(password2) || password.length() < 8) {
-                errorMessage = "you must enter two identical passwords with atleast 8 characters";
-                LOG.warn(errorMessage);
+                errorMessage = "The two passwords must match and be at least 8 characters.";
                 model.addAttribute("errorMessage", errorMessage);
                 return "viewModifyUser";
             } else {
@@ -403,7 +359,6 @@ public class UserAndLoginController {
                 }
             } catch (Exception ex) {
                 errorMessage = "cannot parse userRole" + userRole;
-                LOG.warn(errorMessage);
                 model.addAttribute("errorMessage", errorMessage);
                 return ("/");
             }
@@ -449,7 +404,7 @@ public class UserAndLoginController {
      */
     @ExceptionHandler(Exception.class)
     public String myExceptionHandler(final Exception e, Model model,
-            HttpServletRequest request
+                                     HttpServletRequest request
     ) {
         final StringWriter sw = new StringWriter();
         final PrintWriter pw = new PrintWriter(sw);
