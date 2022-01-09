@@ -22,6 +22,7 @@
                 ${message}
         </div>
     </c:if>
+    <a href="./viewCreateItem"><p>Create Item</p></a>
     <table class="table">
 
         <tr>
@@ -38,19 +39,19 @@
             <td></td>
             <td>
                 <!-- post avoids url encoded parameters -->
-                <form action="./catalog" method="get">
+                <form action="./viewModifyItem" method="get">
                     <input type="hidden" name="itemName" value="${item.name}">
-                    <input type="hidden" name="action" value="viewItem">
+                    <input type="hidden" name="action" value="view">
                     <button type="submit">View Item</button>
                 </form>
-                <form action="./catalog" method="get">
+                <form action="./viewModifyItem" method="get">
                     <input type="hidden" name="itemName" value="${item.name}">
-                    <input type="hidden" name="action" value="editItem">
+                    <input type="hidden" name="action" value="update">
                     <button type="submit">Edit Item</button>
                 </form>
-                <form action="./catalog" method="get">
+                <form action="./viewModifyItem" method="get">
                     <input type="hidden" name="itemName" value="${item.name}">
-                    <input type="hidden" name="action" value="deleteItem">
+                    <input type="hidden" name="action" value="delete">
                     <button type="submit">Delete Item</button>
                 </form>
             </td>

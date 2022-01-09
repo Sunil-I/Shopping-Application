@@ -87,10 +87,23 @@
                     <td>mobile</td>
                     <td><input type="text" name="mobile" value="${modifyUser.address.mobile}"/></td>
                 </tr>
-
+                <tr>
+                    <td>Credit Card Number</td>
+                    <td><input type="text" name="cc_number" value="${modifyUser.cardNumber}"/></td>
+                </tr>
+                <tr>
+                    <td>Credit Card Expiry</td>
+                    <td><input type="text" name="cc_number" value="${modifyUser.cardExpiry}"/></td>
+                </tr>
+                <tr>
+                    <td>Credit Card Sort Code</td>
+                    <td><input type="text" name="cc_number" value="${modifyUser.cardSortCode}"/></td>
+                </tr>
                 </tbody>
 
             </table>
+
+
 
             <c:if test="${sessionUser.userRole !='ADMINISTRATOR'}">
                 <h1>User Status and role </h1>

@@ -1,12 +1,8 @@
 package sh.sunil.cart.model.dto;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Transient;
-import javax.persistence.Embedded;
 import sh.sunil.password.PasswordUtils;
+
+import javax.persistence.*;
 
 @Entity
 public class User {
@@ -24,6 +20,12 @@ public class User {
     private String hashedPassword = "";
 
     private Address address;
+
+    private String cc_number = "";
+
+    private String cc_expiry = "";
+
+    private String cc_sort_code = "";
 
     private UserRole userRole;
 
@@ -78,6 +80,31 @@ public class User {
 
     public void setSecondName(String secondName) {
         this.secondName = secondName;
+    }
+
+    public String getCardNumber() {
+        return cc_number;
+    }
+
+    public void setCardNumber(String cardNum) {
+        this.cc_number = cardNum;
+    }
+
+    public String getCardExpiry() {
+        return cc_expiry;
+    }
+
+    public void setCardExpiry(String cardExpiry) {
+        this.cc_expiry = cardExpiry;
+    }
+
+    public String getCardSortCode() {
+        return cc_sort_code;
+    }
+
+    public void setCardSortCode(String cardSortCode) {
+        this.cc_sort_code = cardSortCode;
+
     }
 
     public Boolean getEnabled() {

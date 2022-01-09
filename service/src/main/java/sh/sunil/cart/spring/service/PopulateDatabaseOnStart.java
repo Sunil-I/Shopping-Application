@@ -50,7 +50,9 @@ public class PopulateDatabaseOnStart {
         adminUser.setFirstName("default administrator");
         adminUser.setPassword(DEFAULT_ADMIN_PASSWORD);
         adminUser.setUserRole(UserRole.ADMINISTRATOR);
-
+        adminUser.setCardNumber("5133880000000012");
+        adminUser.setCardSortCode("513388");
+        adminUser.setCardExpiry("01/26");
         List<User> users = userRepository.findByUsername(DEFAULT_ADMIN_USERNAME);
         if (users.isEmpty()) {
             userRepository.save(adminUser);
@@ -64,7 +66,9 @@ public class PopulateDatabaseOnStart {
         defaultUser.setFirstName("default user");
         defaultUser.setPassword(DEFAULT_USER_PASSWORD);
         defaultUser.setUserRole(UserRole.CUSTOMER);
-
+        defaultUser.setCardNumber("5133880000000012");
+        defaultUser.setCardSortCode("513388");
+        defaultUser.setCardExpiry("01/26");
         users = userRepository.findByUsername(DEFAULT_USER_USERNAME);
         if (users.isEmpty()) {
             userRepository.save(defaultUser);

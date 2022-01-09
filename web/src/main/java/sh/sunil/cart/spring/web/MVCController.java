@@ -102,7 +102,7 @@ public class MVCController {
         model.addAttribute("shoppingcartTotal", shoppingcartTotal);
         model.addAttribute("message", message);
         model.addAttribute("errorMessage", errorMessage);
-        log.info(String.format("Payload(action=%s, availableItems=%s, shoppingcartTotal=%s, message=%s, errorMessage=%s)", action, availableItems, shoppingcartTotal, message, errorMessage));
+        log.info(String.format("Payload(action=%s, itemName=%s, itemUUID=%s, availableItems=%s, shoppingcartTotal=%s, message=%s, errorMessage=%s)", action, itemName, itemUuid, availableItems, shoppingcartTotal, message, errorMessage));
         return "home";
     }
 
@@ -116,27 +116,6 @@ public class MVCController {
         // used to set tab selected
         model.addAttribute("selectedPage", "cart");
         return "cart";
-    }
-
-    @RequestMapping(value = "/catalog", method = {RequestMethod.GET, RequestMethod.POST})
-    public String catalogList(Model model, HttpSession session) {
-
-        // get sessionUser from session
-        User sessionUser = getSessionUser(session);
-        model.addAttribute("sessionUser", sessionUser);
-
-        if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
-            model.addAttribute("errorMessage", "you must be an administrator to access this page.");
-            return "catalog";
-        }
-
-        List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
-
-        model.addAttribute("availableItems", availableItems);
-
-        // used to set tab selected
-        model.addAttribute("selectedPage", "admin");
-        return "catalog";
     }
 
     @RequestMapping(value = "/about", method = {RequestMethod.GET, RequestMethod.POST})
