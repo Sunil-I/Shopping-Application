@@ -220,6 +220,7 @@ public class UserAndLoginController {
 
         if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
             errorMessage = "you must be an administrator to access users information";
+            model.addAttribute("errorMessage", errorMessage);
             return "users";
         }
 

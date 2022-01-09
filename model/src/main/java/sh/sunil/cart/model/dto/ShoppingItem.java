@@ -11,25 +11,25 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- *
  * @author cgallen
  */
 @Entity
 public class ShoppingItem {
-    
+
     private Long id;
-    private String uuid=null;
-    private String name=null;
-    private Integer quantity=0;
-    private Double price=0.0;
-    
-    public ShoppingItem(){
-        
+    private String uuid = null;
+    private String name = null;
+    private Integer quantity = 0;
+    private Double price = 0.0;
+
+    public ShoppingItem() {
+
     }
 
-    public ShoppingItem(String name, Double price) {
+    public ShoppingItem(String name, Double price, Integer quantity) {
         this.name = name;
         this.price = price;
+        this.quantity = quantity;
     }
 
     @Id
@@ -78,7 +78,6 @@ public class ShoppingItem {
     public String toString() {
         return "ShoppingItem{" + "uuuid=" + uuid + ", name=" + name + ", quantity=" + quantity + ", price=" + price + '}';
     }
-    
-            
-    
+
+
 }

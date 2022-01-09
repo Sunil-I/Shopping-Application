@@ -1,13 +1,27 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8" %>
+<%request.setAttribute("selectedPage", "admin");%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%
-    // request set in controller
-//    request.setAttribute("selectedPage","about");
-%>
-<jsp:include page="header.jsp" />
+<jsp:include page="header.jsp"/>
 <!-- Begin page content -->
 <main role="main" class="container">
     <H1>Available Items</H1>
+    <%-- handle error message --%>
+    <c:if test="${not empty errorMessage}">
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+                ${errorMessage}
+        </div>
+    </c:if>
+    <%-- handle message --%>
+
+    <c:if test="${not empty message}">
+        <div class="alert alert-success alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+                ${message}
+        </div>
+    </c:if>
     <table class="table">
 
         <tr>
@@ -24,10 +38,20 @@
             <td></td>
             <td>
                 <!-- post avoids url encoded parameters -->
-                <form action="./home" method="get">
+                <form action="./catalog" method="get">
+                    <input type="hidden" name="itemName" value="${item.name}">
+                    <input type="hidden" name="action" value="viewItem">
+                    <button type="submit">View Item</button>
+                </form>
+                <form action="./catalog" method="get">
+                    <input type="hidden" name="itemName" value="${item.name}">
+                    <input type="hidden" name="action" value="editItem">
+                    <button type="submit">Edit Item</button>
+                </form>
+                <form action="./catalog" method="get">
                     <input type="hidden" name="itemName" value="${item.name}">
                     <input type="hidden" name="action" value="deleteItem">
-                    <button type="submit" >Delete Item</button>
+                    <button type="submit">Delete Item</button>
                 </form>
             </td>
         </tr>
@@ -38,6 +62,4 @@
 </main>
 
 
-
-
-<jsp:include page="footer.jsp" />
+<jsp:include page="footer.jsp"/>

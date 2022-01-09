@@ -11,6 +11,22 @@
 
     <div>
         <h1>Manage Users</h1>
+        <%-- handle error message --%>
+        <c:if test="${not empty errorMessage}">
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                    ${errorMessage}
+            </div>
+        </c:if>
+        <%-- handle message --%>
+        <c:if test="${not empty message}">
+            <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                    ${message}
+            </div>
+        </c:if>
         <p>showing ${userListSize} users: </p>
         <table class="table">
             <thead>

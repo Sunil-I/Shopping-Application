@@ -12,6 +12,7 @@
 
 4) [Testing](#testing)
 
+5) [Design](./documentation/design.md)
 # Using the app
 
 You should be able to visit the app via http://localhost:8080/ or https://com528-shopping-app.herokuapp.com/

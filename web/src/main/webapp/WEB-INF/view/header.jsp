@@ -42,7 +42,6 @@
                             <li <% if ("home".equals(request.getAttribute("selectedPage"))) {%> class="active"  <% } %> ><a href="./">Home</a></li> 
                             <li <% if ("about".equals(request.getAttribute("selectedPage"))) {%>  class="active"  <% } %> ><a href="./about">About</a></li>
                             <li <% if ("contact".equals(request.getAttribute("selectedPage"))) {%>  class="active"  <% }%> ><a href="./contact">Contact</a></li>
-                            <li <% if ("catalog".equals(request.getAttribute("selectedPage"))) {%>  class="active"  <% }%> ><a href="./catalog">Catalog</a></li>
                             <li <% if ("cart".equals(request.getAttribute("selectedPage"))) {%>  class="active"  <% }%> ><a href="./cart">Cart</a></li>
 
 

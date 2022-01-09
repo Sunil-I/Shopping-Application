@@ -1,18 +1,7 @@
 package sh.sunil.cart.spring.web;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.sunil.cart.model.dto.ShoppingItem;
-import sh.sunil.cart.model.dto.User;
-import sh.sunil.cart.model.dto.UserRole;
-import sh.sunil.cart.model.service.ShoppingCart;
-import sh.sunil.cart.model.service.ShoppingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +9,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import sh.sunil.cart.model.dto.ShoppingItem;
+import sh.sunil.cart.model.dto.User;
+import sh.sunil.cart.model.dto.UserRole;
+import sh.sunil.cart.model.service.ShoppingCart;
+import sh.sunil.cart.model.service.ShoppingService;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
 
 @Controller
 @RequestMapping("/")
@@ -125,10 +125,10 @@ public class MVCController {
         User sessionUser = getSessionUser(session);
         model.addAttribute("sessionUser", sessionUser);
 
-//        List<ShoppingItem> availableItems  = new ArrayList();
-//        ShoppingItem item = new ShoppingItem();
-//        item.setName("apple");
-//        availableItems.add(item);
+        if (!UserRole.ADMINISTRATOR.equals(sessionUser.getUserRole())) {
+            model.addAttribute("errorMessage", "you must be an administrator to access this page.");
+            return "catalog";
+        }
 
         List<ShoppingItem> availableItems = shoppingService.getAvailableItems();
 

@@ -5,42 +5,35 @@
  */
 package sh.sunil.cart.service;
 
-import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
+import sh.sunil.cart.dao.impl.ShoppingItemCatalogRepository;
+import sh.sunil.cart.model.dto.ShoppingItem;
+import sh.sunil.cart.model.service.ShoppingCart;
+import sh.sunil.cart.model.service.ShoppingService;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import sh.sunil.cart.model.service.ShoppingCart;
-import sh.sunil.cart.model.dto.ShoppingItem;
-import sh.sunil.cart.model.service.ShoppingService;
 
-/**
- *
- * @author cgallen
- */
-
+@DependsOn({"PopulateDatabaseOnStart"})
 public class ShoppingServiceImpl implements ShoppingService {
 
     // note ConcurrentHashMap instead of HashMap if map can be altered while being read
     private Map<String, ShoppingItem> itemMap = new ConcurrentHashMap<String, ShoppingItem>();
 
-    private List<ShoppingItem> itemlist = Arrays.asList(new ShoppingItem("house", 20000.00),
-            new ShoppingItem("hen", 5.00),
-            new ShoppingItem("car", 5000.00),
-            new ShoppingItem("pet alligator", 65.00)
-    );
+    @Autowired
+    private ShoppingItemCatalogRepository shoppingItemCatalogRepository;
+
 
     public ShoppingServiceImpl() {
 
-        // initialised the hashmap
-        for (ShoppingItem item : itemlist) {
-            itemMap.put(item.getName(), item);
-        }
     }
 
     @Override
     public List<ShoppingItem> getAvailableItems() {
-        return itemlist;
+        return shoppingItemCatalogRepository.findAll();
     }
 
     @Override
@@ -55,10 +48,10 @@ public class ShoppingServiceImpl implements ShoppingService {
 
     @Override
     public ShoppingItem getNewItemByName(String name) {
-        ShoppingItem templateItem = itemMap.get(name);
-        
-        if(templateItem==null) return null;
-        
+        ShoppingItem templateItem = shoppingItemCatalogRepository.findByName(name).get(0);
+
+        if (templateItem == null) return null;
+
         ShoppingItem item = new ShoppingItem();
         item.setName(name);
         item.setPrice(templateItem.getPrice());
