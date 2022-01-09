@@ -21,10 +21,11 @@ You should be able to visit the app via http://localhost:8080/ or https://com528
 
 1) Clone the repo
 ```shell
-git clone https://github.com/Sunil-I/COM528-AE2
+git clone https://github.com/Sunil-I/COM528-AE2 app
 ```
 2) Install everything
 ```shell
+cd app
 mvn clean install
 ```
 3) Run spring / tomcat
@@ -47,12 +48,12 @@ The system requirements for this program are:
 The objective was to design, develop and test with java tools a shopping cart application which would let the users explore a catalogue allowing them to add items to the basket with the main goal with the user being able to make a transaction which the admin would approve.
 # Requirements
 The requirements for the application were:
-2) The application uses java technology for the back end
-3) The application uses frontend technology and jsp for rendering web pages
-4) We are required to use a logging framework to help the debugging within our application
-5) All classes must be documented in Javadoc
-6) It should capture and log all errors
-7) Along with helpful error messages for user generated errors
+1) The application uses java technology for the back end
+2) The application uses frontend technology and jsp for rendering web pages
+3) We are required to use a logging framework to help the debugging within our application
+4) All classes must be documented in Javadoc
+5) It should capture and log all errors
+6) Along with helpful error messages for user generated errors
 
 # Testing
 To meet the requirements of our application being able to compile in every environment possible we made use of CI/CD to run tests as well as compile our code to ensure that everything works as intended, you can view the builds [here](https://github.com/Sunil-I/COM528-AE2/actions).
