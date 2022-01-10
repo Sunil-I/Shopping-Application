@@ -3,7 +3,7 @@
 
 # Contents
 1) [Using the app](#using-the-app)
-    - [How to set up](#How to set up)
+    - [How to set up](#how-to-set-up)
     - [System Requirements](#system-requirements)
 
 2) [Objectives](#objectives)
