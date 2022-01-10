@@ -35,6 +35,7 @@
 
     <modules>
         <module>bank-client</module>
+        <module>card-checker</module>
         <module>model</module>
         <module>dao</module>
         <module>service</module>

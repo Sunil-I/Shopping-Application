@@ -60,7 +60,7 @@ public class CatalogController {
     }
 
     @RequestMapping(value = {"/viewModifyItem"}, method = RequestMethod.GET)
-    public String modifyItem(
+    public String viewModifyItem(
             @RequestParam(value = "itemName", required = true) String itemName,
             @RequestParam(value = "action", required = false) String action,
             Model model,
@@ -86,9 +86,6 @@ public class CatalogController {
         }
 
         ShoppingItem modifyItem = shoppingItem.get(0);
-        System.out.println("TESTING: " + modifyItem);
-        System.out.println("TESTING: " + itemName);
-        System.out.println("TESTING: " + shoppingItem);
         model.addAttribute("modifyItem", modifyItem);
 
         model.addAttribute("message", message);
@@ -175,7 +172,7 @@ public class CatalogController {
     }
 
     @RequestMapping(value = {"/viewCreateItem"}, method = RequestMethod.POST)
-    public String PostCreateItem(
+    public String createItem(
             @RequestParam(value = "action", required = false) String action,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "price", required = false) Double price,

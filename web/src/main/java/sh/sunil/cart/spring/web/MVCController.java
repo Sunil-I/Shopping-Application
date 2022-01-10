@@ -9,11 +9,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import sh.sunil.bank.client.impl.BankRestClientImpl;
+import sh.sunil.bank.model.client.BankRestClient;
+import sh.sunil.bank.model.dto.BankTransactionStatus;
+import sh.sunil.bank.model.dto.CreditCard;
+import sh.sunil.bank.model.dto.TransactionReplyMessage;
+import sh.sunil.cart.dao.impl.PropertiesDao;
+import sh.sunil.cart.dao.impl.PropertiesWebObjectFactory;
 import sh.sunil.cart.model.dto.ShoppingItem;
 import sh.sunil.cart.model.dto.User;
 import sh.sunil.cart.model.dto.UserRole;
 import sh.sunil.cart.model.service.ShoppingCart;
 import sh.sunil.cart.model.service.ShoppingService;
+import sh.sunil.cart.web.WebObjectFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -48,7 +56,7 @@ public class MVCController {
     }
 
     @RequestMapping(value = "/", method = {RequestMethod.GET, RequestMethod.POST})
-    public String viewCart(@RequestParam(name = "action", required = false) String action,
+    public String homeCart(@RequestParam(name = "action", required = false) String action,
                            @RequestParam(name = "itemName", required = false) String itemName,
                            @RequestParam(name = "itemUUID", required = false) String itemUuid,
                            Model model,
@@ -64,15 +72,13 @@ public class MVCController {
         String message = "";
         String errorMessage = "";
 
-        // note that the shopping cart is is stored in the sessionUser's session
-        // so there is one cart per sessionUser
-//        ShoppingCart shoppingCart = (ShoppingCart) session.getAttribute("shoppingCart");
-//        if (shoppingCart == null) synchronized (this) {
-//            if (shoppingCart == null) {
-//                shoppingCart = WebObjectFactory.getNewShoppingCart();
-//                session.setAttribute("shoppingCart", shoppingCart);
-//            }
-//        }
+        ShoppingCart shoppingCart = (ShoppingCart) session.getAttribute("shoppingCart");
+        if (shoppingCart == null) synchronized (this) {
+            if (shoppingCart == null) {
+                shoppingCart = WebObjectFactory.getNewShoppingCart();
+                session.setAttribute("shoppingCart", shoppingCart);
+            }
+        }
         if (action == null) {
             // do nothing but show page
         } else if ("addItemToCart".equals(action)) {
@@ -104,18 +110,6 @@ public class MVCController {
         model.addAttribute("errorMessage", errorMessage);
         log.info(String.format("Payload(action=%s, itemName=%s, itemUUID=%s, availableItems=%s, shoppingcartTotal=%s, message=%s, errorMessage=%s)", action, itemName, itemUuid, availableItems, shoppingcartTotal, message, errorMessage));
         return "home";
-    }
-
-    @RequestMapping(value = "/cart", method = {RequestMethod.GET, RequestMethod.POST})
-    public String Cart(Model model, HttpSession session) {
-
-        // get sessionUser from session
-        User sessionUser = getSessionUser(session);
-        model.addAttribute("sessionUser", sessionUser);
-
-        // used to set tab selected
-        model.addAttribute("selectedPage", "cart");
-        return "cart";
     }
 
     @RequestMapping(value = "/about", method = {RequestMethod.GET, RequestMethod.POST})
@@ -156,6 +150,118 @@ public class MVCController {
         model.addAttribute("errorMessage", errorMessage);
         log.info(String.format("Payload(action=%s, firstname=%s, lastname=%s, subject=%s, contents=%s, message=%s, errorMessage=%s)", action, firstName, lastName, subject, contents, message, errorMessage));
         return "contact";
+    }
+
+
+    @RequestMapping(value = "/checkout", method = RequestMethod.GET)
+    public String viewCheckout(
+            Model model,
+            HttpSession session) {
+
+        // get sessionUser from session
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "checkout");
+
+        String message = "";
+        String errorMessage = "";
+
+        if (UserRole.ANONYMOUS.equals(sessionUser.getUserRole())) {
+            errorMessage = "You must be logged in to checkout!";
+            model.addAttribute("errorMessage", errorMessage);
+            return "checkout";
+        }
+
+
+        ShoppingCart shoppingCart = (ShoppingCart) session.getAttribute("shoppingCart");
+        if (shoppingCart == null) synchronized (this) {
+            if (shoppingCart == null) {
+                shoppingCart = WebObjectFactory.getNewShoppingCart();
+                session.setAttribute("shoppingCart", shoppingCart);
+            }
+        }
+
+
+        List<ShoppingItem> shoppingCartItems = shoppingCart.getShoppingCartItems();
+
+        Double shoppingcartTotal = shoppingCart.getTotal();
+
+        // populate model with values
+        model.addAttribute("shoppingCartItems", shoppingCartItems);
+        model.addAttribute("shoppingcartTotal", shoppingcartTotal);
+        model.addAttribute("message", message);
+        model.addAttribute("errorMessage", errorMessage);
+        return "checkout";
+    }
+
+
+    @RequestMapping(value = "/checkout", method = RequestMethod.POST)
+    public String completeCheckout(
+            @RequestParam(name = "cc_number", required = false) String cardnumber,
+            @RequestParam(name = "cc_holder_name", required = false) String cardname,
+            @RequestParam(name = "cc_expiry", required = false) String cardenddate,
+            @RequestParam(name = "cc_issueNum", required = false) String cardissuenumber,
+            @RequestParam(name = "cc_cvv", required = false) String cardcvv,
+            Model model,
+            HttpSession session) {
+
+
+        // setup bank
+        final PropertiesDao propertiesDao = PropertiesWebObjectFactory.getPropertiesDao();
+        final String BANK_URL = propertiesDao.getProperty("BANK_API_URL");
+        final String ShopCardNum = propertiesDao.getProperty("SHOP_CARD_NUMBER");
+
+        final BankRestClient client = new BankRestClientImpl(BANK_URL);
+        // get sessionUser from session
+        User sessionUser = getSessionUser(session);
+        model.addAttribute("sessionUser", sessionUser);
+
+        // used to set tab selected
+        model.addAttribute("selectedPage", "checkout");
+
+        String message = "";
+        String errorMessage = "";
+
+
+        //Pay & Create Order
+        CreditCard card = new CreditCard();
+        card.setCardnumber(cardnumber);
+//        card.setEndDate(cardenddate);
+//        card.setIssueNumber(cardissuenumber);
+//        card.setName(cardname);
+//        card.setCvv(cardcvv);
+
+        CreditCard shopCard = new CreditCard();
+        shopCard.setCardnumber(ShopCardNum);
+
+        ShoppingCart shoppingCart = (ShoppingCart) session.getAttribute("shoppingCart");
+        if (shoppingCart == null) synchronized (this) {
+            if (shoppingCart == null) {
+                shoppingCart = WebObjectFactory.getNewShoppingCart();
+                session.setAttribute("shoppingCart", shoppingCart);
+            }
+        }
+
+
+        List<ShoppingItem> shoppingCartItems = shoppingCart.getShoppingCartItems();
+
+        Double shoppingcartTotal = shoppingCart.getTotal();
+
+        TransactionReplyMessage transfer = client.transferMoney(card, shopCard, shoppingcartTotal);
+
+        if (BankTransactionStatus.SUCCESS.equals(transfer.getStatus())) message = "Transaction was successful.";
+        if (BankTransactionStatus.FAIL.equals(transfer.getStatus()))
+            errorMessage = "Transaction failed: " + transfer.getMessage();
+
+        // populate model with values
+        model.addAttribute("shoppingCartItems", shoppingCartItems);
+        model.addAttribute("shoppingcartTotal", shoppingcartTotal);
+        model.addAttribute("message", message);
+        model.addAttribute("errorMessage", errorMessage);
+        return "checkout";
     }
 
 
