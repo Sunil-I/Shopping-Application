@@ -46,6 +46,22 @@ public class ShoppingServiceImpl implements ShoppingService {
         return true;
     }
 
+
+    @Override
+    public boolean checkStock(ShoppingCart cart, String itemName) {
+        for (ShoppingItem item : cart.getShoppingCartItems()) {
+            //Fetch Item from DB first
+            ShoppingItem shoppingItem = shoppingItemCatalogRepository.findByName(item.getName()).get(0);
+            if (shoppingItem != null) {
+                //Check Quantity
+                if ((shoppingItem.getQuantity() - item.getQuantity()) < 1 && itemName.equals(item.getName())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     @Override
     public ShoppingItem getNewItemByName(String name) {
         ShoppingItem templateItem = shoppingItemCatalogRepository.findByName(name).get(0);

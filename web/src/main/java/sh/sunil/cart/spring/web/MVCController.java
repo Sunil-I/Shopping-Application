@@ -16,6 +16,7 @@ import sh.sunil.bank.model.dto.CreditCard;
 import sh.sunil.bank.model.dto.TransactionReplyMessage;
 import sh.sunil.cart.dao.impl.PropertiesDao;
 import sh.sunil.cart.dao.impl.PropertiesWebObjectFactory;
+import sh.sunil.cart.dao.impl.ShoppingItemCatalogRepository;
 import sh.sunil.cart.model.dto.ShoppingItem;
 import sh.sunil.cart.model.dto.User;
 import sh.sunil.cart.model.dto.UserRole;
@@ -43,6 +44,9 @@ public class MVCController {
     // so the shopping cart is unique for each web session
     @Autowired
     ShoppingCart shoppingCart = null;
+
+    @Autowired
+    ShoppingItemCatalogRepository shoppingItemCatalogRepository;
 
     private User getSessionUser(HttpSession session) {
         User sessionUser = (User) session.getAttribute("sessionUser");
@@ -86,8 +90,13 @@ public class MVCController {
             if (shoppingItem == null) {
                 errorMessage = "cannot add unknown " + itemName + " to cart";
             } else {
-                message = "added " + itemName + " to cart";
-                shoppingCart.addItemToCart(shoppingItem);
+                ShoppingItem stockItem = shoppingItemCatalogRepository.findByName(shoppingItem.getName()).get(0);
+                if (shoppingService.checkStock(shoppingCart, shoppingItem.getName()) == false) {
+                    errorMessage = String.format("Can not add item %s, we only have %s and you're trying to order %s.", shoppingItem.getName(), stockItem.getQuantity(), stockItem.getQuantity() + 1);
+                } else {
+                    message = "added " + itemName + " to cart";
+                    shoppingCart.addItemToCart(shoppingItem);
+                }
             }
         } else if ("removeItemFromCart".equals(action)) {
             message = "removed " + itemName + " from cart";
@@ -256,6 +265,21 @@ public class MVCController {
         if (BankTransactionStatus.FAIL.equals(transfer.getStatus()))
             errorMessage = "Transaction failed: " + transfer.getMessage();
 
+
+        if (BankTransactionStatus.SUCCESS.equals(transfer.getStatus())) {
+            for (ShoppingItem item : shoppingCartItems) {
+                //Fetch Item from DB first
+                ShoppingItem shoppingItem = shoppingItemCatalogRepository.findByName(item.getName()).get(0);
+                if (shoppingItem != null) {
+                    //Reduce Quantity
+                    shoppingItem.setQuantity(shoppingItem.getQuantity() - item.getQuantity());
+                    shoppingItemCatalogRepository.save(shoppingItem);
+                }
+            }
+            shoppingCart.clearCart();
+            shoppingCartItems = shoppingCart.getShoppingCartItems();
+            shoppingcartTotal = shoppingCart.getTotal();
+        }
         // populate model with values
         model.addAttribute("shoppingCartItems", shoppingCartItems);
         model.addAttribute("shoppingcartTotal", shoppingcartTotal);

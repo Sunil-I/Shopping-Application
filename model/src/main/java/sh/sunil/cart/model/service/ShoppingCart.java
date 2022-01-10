@@ -19,7 +19,9 @@ public interface ShoppingCart {
     public void addItemToCart(ShoppingItem shoppingItem);
     
     public void removeItemFromCart(String itemUuid);
-    
+
+    public void clearCart();
+
     public double getTotal();
     
 }
